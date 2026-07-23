@@ -3,6 +3,7 @@ $piterjs_place_page $mol_page
 		title? => title?
 		address? => address?
 		route? => route?
+		notes? => notes?
 	Title $mol_string
 		value? <=> title?
 		enabled <= editing false
@@ -21,6 +22,10 @@ $piterjs_place_page $mol_page
 			<= Route $mol_textarea
 				hint \Как добраться
 				value? <=> route?
+				enabled <= editing false
+			<= Notes $mol_textarea
+				hint \Заметки для слайда «Мы в …»
+				value? <=> notes?
 				enabled <= editing false
 		<= Map $hyoo_map
 	auto /

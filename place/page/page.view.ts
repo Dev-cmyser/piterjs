@@ -9,7 +9,8 @@ namespace $.$$ {
 		info() {
 			return [
 				this.Address() ,
-				... this.route() ? [ this.Route() ] : []
+				... this.route() ? [ this.Route() ] : [] ,
+				... ( this.editing() || this.notes() ) ? [ this.Notes() ] : []
 			]
 		}
 
