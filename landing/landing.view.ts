@@ -2,587 +2,373 @@ namespace $.$$ {
 
 	export class $piterjs_landing extends $.$piterjs_landing {
 
-		@ $mol_mem
-		dom_node() {
-			const node = super.dom_node()
-			$mol_fiber_defer( () => {
-				const video = node.querySelector( 'video' ) as HTMLVideoElement | null
-				if( video ) {
-					video.muted = true
-					video.defaultMuted = true
-					video.volume = 0
-					video.play().catch( () => {} )
-				}
-			} )
-			return node
+		/** Значение из словаря, объявленного в view.tree, по строковому ключу. */
+		label< Dict extends Record< string, string > >( dict: Dict, id: string ) {
+			return dict[ id ] ?? ''
 		}
 
-		// Dynamic Meetup Details
-		@ $mol_mem
-		meetup_title() {
-			return this.meetup()?.title() || 'PITERJS #56'
-		}
+		// ===== Шапка =====
 
 		@ $mol_mem
 		meetup_num() {
-			const match = this.meetup_title().match( /\d+/ )
-			return match ? match[0] : '56'
+			return this.meetup()?.title().match( /\d+/ )?.[0] ?? ''
+		}
+
+		meetup_tag() {
+			const num = this.meetup_num()
+			return num ? `v.${ num }.0` : ''
+		}
+
+		join_link_title() {
+			const num = this.meetup_num()
+			return num ? `[ Зарегистрироваться #${ num } ]` : '[ Регистрация ]'
 		}
 
 		@ $mol_mem
-		logo_version_tag() {
-			return `v.${this.meetup_num()}.0`
+		nav_links() {
+			return Object.keys( this.nav_titles() ).map( id => this.Nav_link( id ) )
+		}
+
+		nav_uri( id: string ) {
+			return '#' + id
+		}
+
+		nav_title( id: string ) {
+			return this.label( this.nav_titles(), id ) || id
 		}
 
 		@ $mol_mem
-		rsvp_btn_text() {
-			return `[ Зарегистрироваться #${this.meetup_num()} ]`
+		menu_open( next?: boolean ) {
+			return next ?? false
+		}
+
+		menu_toggle() {
+			this.menu_open( !this.menu_open() )
+		}
+
+		menu_close() {
+			this.menu_open( false )
+		}
+
+		// ===== Обратный отсчёт =====
+
+		@ $mol_mem
+		countdown() {
+			const start = this.meetup()?.start()?.valueOf() ?? 0
+			const left = Math.max( 0, start - $mol_state_time.now( 1000 ) )
+			return {
+				days: Math.floor( left / 86400000 ),
+				hours: Math.floor( left / 3600000 ) % 24,
+				minutes: Math.floor( left / 60000 ) % 60,
+				seconds: Math.floor( left / 1000 ) % 60,
+			} as Record< string, number >
 		}
 
 		@ $mol_mem
-		free_slots() {
-			const capacity = this.meetup()?.place()?.capacity_max() || 300
-			const visitors = this.meetup()?.visitors_list()?.length || 287
-			const free = Math.max( 0, capacity - visitors )
-			return free > 0 ? `${free} МЕСТ СВОБОДНО` : 'РЕГИСТРАЦИЯ ЗАКРЫТА'
+		countdown_units() {
+			return Object.keys( this.timer_titles() ).map( id => this.Timer( id ) )
+		}
+
+		timer_value( id: string ) {
+			return String( this.countdown()[ id ] ?? 0 ).padStart( 2, '0' )
+		}
+
+		timer_title( id: string ) {
+			return this.label( this.timer_titles(), id ) || id
+		}
+
+		// ===== Ближайший митап =====
+
+		event_title() {
+			return this.meetup()?.title() ?? ''
+		}
+
+		event_time() {
+			return this.meetup()?.start()?.toString( 'D Month YYYY // hh:mm', 'ru' ).toUpperCase() ?? ''
+		}
+
+		event_place() {
+			const title = this.meetup()?.place().title()
+			return title ? `${ title }, Санкт-Петербург`.toUpperCase() : ''
+		}
+
+		map_uri() {
+			const address = this.meetup()?.place().address()
+			return address ? 'https://yandex.ru/maps/?text=' + encodeURIComponent( address ) : ''
+		}
+
+		@ $mol_mem
+		free_count() {
+			const meetup = this.meetup()
+			return ( meetup.place().capacity_max() ?? 0 ) - meetup.joined_count()
 		}
 
 		@ $mol_mem
 		hero_badge() {
-			return `${this.meetup_title().toUpperCase()} // ${this.free_slots()}`
+			const title = this.meetup()?.title()
+			if( !title ) return ''
+			if( !this.meetup().join_allowed() ) return `${ title.toUpperCase() } // РЕГИСТРАЦИЯ ЗАКРЫТА`
+			const free = this.free_count()
+			return `${ title.toUpperCase() } // ${ free > 0 ? `${ free } МЕСТ СВОБОДНО` : 'МЕСТ НЕТ' }`
+		}
+
+		// ===== Регистрация =====
+
+		name_real( next?: string ) {
+			return this.$.$mol_state_local.value( 'name_real', next ) ?? ''
+		}
+
+		person_name() {
+			return this.name_real().trim().replace( /\s+/, ' ' )
+		}
+
+		join_hint() {
+			const name = this.person_name()
+			if( !name ) return 'Укажите имя и фамилию'
+			if( !/\S{2,}\s\S{2,}/.test( name ) ) return 'От двух слов'
+			return ''
+		}
+
+		joined( next?: boolean ) {
+			const meetup = this.meetup()
+			const peer = meetup.land.peer_id()
+			if( next === true ) meetup.joined_name( peer, this.person_name() )
+			if( next === false ) meetup.joined_name( peer, '' )
+			return Boolean( meetup.joined_name( peer ) )
+		}
+
+		join_name_enabled() {
+			return !this.joined()
+		}
+
+		join_enabled() {
+			if( this.joined() ) return true
+			if( this.join_hint() ) return false
+			return this.free_count() > 0
+		}
+
+		join_free() {
+			return `Свободно мест: ${ Math.max( 0, this.free_count() ) }`
 		}
 
 		@ $mol_mem
-		now_time() {
-			return $mol_state_time.now( 1000 )
-		}
-
-		@ $mol_mem
-		target_timestamp() {
-			const start = this.meetup()?.start()?.valueOf()
-			if( start && start > Date.now() ) return start
-			return new Date( '2026-08-15T19:00:00+03:00' ).getTime()
-		}
-
-		@ $mol_mem
-		countdown_diff() {
-			const now = this.now_time()
-			const diff = Math.max( 0, this.target_timestamp() - now )
-			const days = Math.floor( diff / ( 1000 * 60 * 60 * 24 ) )
-			const hours = Math.floor( ( diff % ( 1000 * 60 * 60 * 24 ) ) / ( 1000 * 60 * 60 ) )
-			const minutes = Math.floor( ( diff % ( 1000 * 60 * 60 ) ) / ( 1000 * 60 ) )
-			const seconds = Math.floor( ( diff % ( 1000 * 60 ) ) / 1000 )
-			return { days, hours, minutes, seconds }
-		}
-
-		days_str() {
-			return String( this.countdown_diff().days ).padStart( 2, '0' )
-		}
-
-		hours_str() {
-			return String( this.countdown_diff().hours ).padStart( 2, '0' )
-		}
-
-		mins_str() {
-			return String( this.countdown_diff().minutes ).padStart( 2, '0' )
-		}
-
-		secs_str() {
-			return String( this.countdown_diff().seconds ).padStart( 2, '0' )
-		}
-
-		format_ru_date( moment?: $mol_time_moment, with_time = false ) {
-			if( !moment ) return ''
-			const months = [
-				'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-				'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+		join_content() {
+			if( !this.meetup()?.join_allowed() ) return []
+			return [
+				this.Join_free(),
+				this.Join_name(),
+				this.Join_check(),
+				... this.join_hint() ? [ this.Join_hint() ] : [],
 			]
-			const day = moment.day !== undefined ? String( moment.day + 1 ) : ''
-			const month = moment.month !== undefined ? ( months[ moment.month ] || '' ) : ''
-			const year = moment.year !== undefined ? String( moment.year ) : ''
-			let str = [ day, month, year ].filter( Boolean ).join( ' ' )
-			if( with_time && moment.hour !== undefined ) {
-				const h = String( moment.hour ).padStart( 2, '0' )
-				const m = String( moment.minute ?? 0 ).padStart( 2, '0' )
-				str += ` // ${h}:${m}`
-			}
-			return str
 		}
 
-		// Next Event Card
-		@ $mol_mem
-		next_event_title() {
-			const m = this.meetup()
-			if( m?.title() ) {
-				const desc = m.description()
-				return desc ? `${m.title()}: ${desc}` : m.title()
-			}
-			return 'PiterJS #56: WebGPU, Next-Gen Bundlers & AI Architecture'
+		// ===== Манифест =====
+
+		meetups_count() {
+			return String( this.meetups().length )
+		}
+
+		// ===== Программа =====
+
+		schedule_title() {
+			const title = this.meetup()?.title()
+			return title ? `ПРОГРАММА ${ title.toUpperCase() }` : 'ПРОГРАММА'
+		}
+
+		schedule_lead() {
+			return this.meetup()?.description() ?? ''
 		}
 
 		@ $mol_mem
-		next_event_time() {
-			const start = this.meetup()?.start()
-			if( start ) return this.format_ru_date( start, true ).toUpperCase()
-			return '15 АВГУСТА 2026 // 19:00'
-		}
-
-		@ $mol_mem
-		next_event_place() {
-			const place = this.meetup()?.place()?.title()
-			if( place ) return place.toUpperCase() + ', САНКТ-ПЕТЕРБУРГ'
-			return 'ИТ-ХАБ, САНКТ-ПЕТЕРБУРГ'
-		}
-
-		@ $mol_mem
-		next_event_map_uri() {
-			const addr = this.meetup()?.place()?.address() || 'Санкт-Петербург, Аптекарский проспект, 4'
-			return 'https://yandex.ru/maps/?text=' + encodeURIComponent( addr )
-		}
-
-		// Schedule & Speeches
-		@ $mol_mem
-		schedule_heading() {
-			return 'ПРОГРАММА ' + this.meetup_title().toUpperCase()
-		}
-
-		@ $mol_mem
-		schedule_intro() {
-			return this.meetup()?.description() || 'Три больших инспекции современного стека: от графических пайплайнов до высокопроизводительного инструментария на Rust.'
-		}
-
-		@ $mol_mem
-		speeches_list() {
+		speeches() {
 			return this.meetup()?.speeches() ?? []
 		}
 
 		@ $mol_mem
 		talks() {
-			const list = this.speeches_list()
-			if( list.length > 0 ) return list.map( s => this.Talk( s.id() ) )
-			return [ this.Talk( 'default_1' ), this.Talk( 'default_2' ) ]
-		}
-
-		speech_item( id: string ) {
-			return this.speeches_list().find( s => s.id() === id )
-		}
-
-		talk_tag( id: string ) {
-			if( id === 'default_1' ) return 'WebGPU & Graphics'
-			if( id === 'default_2' ) return 'Architecture & AI'
-			return 'Tech Talk'
-		}
-
-		talk_time( id: string ) {
-			const s = this.speech_item( id )
-			if( s?.start() ) return s.start().toString( 'hh:mm' )
-			if( id === 'default_1' ) return '19:15'
-			if( id === 'default_2' ) return '20:00'
-			return '19:00'
-		}
-
-		talk_title( id: string ) {
-			const s = this.speech_item( id )
-			if( s?.title() ) return s.title()
-			if( id === 'default_1' ) return 'Реалистичный рендеринг в браузере: рендерим миллионы объектов с WebGPU в 2026'
-			if( id === 'default_2' ) return 'Автономные AI-агенты внутри React-приложений: Паттерны и Безопасность'
-			return 'Тема доклада'
-		}
-
-		talk_abstract( id: string ) {
-			const s = this.speech_item( id )
-			if( s?.description() ) return s.description()
-			if( id === 'default_1' ) return 'Разбираем практический опыт перевода сложных визуализаций с WebGL2 на WebGPU. Compute-шейдеры, оптимизация пайплайн-кэша и минимизация GPU stalling.'
-			if( id === 'default_2' ) return 'Как интегрировать агентные системы напрямую в клиентский интерфейс, сохраняя реактивность state management, изоляцию вызовов и защиту данных пользователя.'
-			return 'Тезисы и подробности доклада формируются'
-		}
-
-		speaker_name( id: string ) {
-			const s = this.speech_item( id )
-			if( s?.speaker()?.title() ) return s.speaker().title()
-			if( id === 'default_1' ) return 'Александр Громов'
-			if( id === 'default_2' ) return 'Мария Соколова'
-			return 'Спикер PiterJS'
-		}
-
-		speaker_role( id: string ) {
-			const s = this.speech_item( id )
-			const desc = s?.speaker()?.description() || s?.speaker()?.contact()
-			if( desc ) return desc
-			if( id === 'default_1' ) return 'Lead Graphics Engineer // VK'
-			if( id === 'default_2' ) return 'Staff Frontend Architect // JetBrains'
-			return 'Инженер-разработчик'
-		}
-
-		speaker_photo( id: string ) {
-			const s = this.speech_item( id )
-			try {
-				const uri = s?.speaker()?.photo_uri()
-				if( uri ) return uri
-			} catch( e ) {}
-			if( id === 'default_2' ) return '/piterjs/landing/assets/speaker_maria.png'
-			return '/piterjs/landing/assets/speaker_alex.png'
-		}
-
-		// Venue
-		@ $mol_mem
-		venue_title() {
-			return this.meetup()?.place()?.title() || 'ИТ-Хаб Санкт-Петербург'
-		}
-
-		@ $mol_mem
-		venue_meta1() {
-			return '📍 ' + ( this.meetup()?.place()?.address() || 'Аптекарский проспект, 4 (СПб, 197022)' )
-		}
-
-		@ $mol_mem
-		venue_meta2() {
-			return '🚇 ' + ( this.meetup()?.place()?.route() || 'Метро «Петроградская» (10 минут пешком)' )
-		}
-
-		@ $mol_mem
-		venue_meta3() {
-			return '🚶 ' + ( this.meetup()?.place()?.notes() || 'Вход со стороны набережной Карповки' )
-		}
-
-		@ $mol_mem
-		venue_map_uri() {
-			return 'https://yandex.ru/maps/?text=' + encodeURIComponent( this.meetup()?.place()?.address() || 'Санкт-Петербург, Аптекарский проспект, 4' )
-		}
-
-		// Archive Filtering & Pagination (6 per page)
-		@ $mol_mem
-		archive_preset_data() {
-			return [
-				{
-					id: 'piterjs-55',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #55',
-					title: 'Rust-базированные бандлеры в продакшене',
-					dateLabel: '12 Июня 2026',
-					viewers: 420,
-				},
-				{
-					id: 'piterjs-54',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #54',
-					title: 'Micro-frontends в масштабных порталах',
-					dateLabel: '24 Апреля 2026',
-					viewers: 380,
-				},
-				{
-					id: 'piterjs-53',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #53',
-					title: 'Canvas 2D vs WebGL для финансовых графиков',
-					dateLabel: '10 Февраля 2026',
-					viewers: 510,
-				},
-				{
-					id: 'piterux-12',
-					category: 'piterux',
-					eventLabel: 'PITERUX #12',
-					title: 'Дизайн-системы и токены в инженерном контуре',
-					dateLabel: '18 Мая 2026',
-					viewers: 290,
-				},
-				{
-					id: 'conf-19',
-					category: 'conf',
-					eventLabel: 'PITERJS CONF',
-					title: 'Большая конференция веб-разработчиков в Санкт-Петербурге',
-					dateLabel: 'Сентябрь 2019',
-					viewers: 950,
-				},
-				{
-					id: 'piterjs-52',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #52',
-					title: 'WebAssembly и вычисления на стороне клиента',
-					dateLabel: '15 Декабря 2025',
-					viewers: 460,
-				},
-				{
-					id: 'piterjs-51',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #51',
-					title: 'React Server Components: от теории к продакшену',
-					dateLabel: '20 Октября 2025',
-					viewers: 530,
-				},
-				{
-					id: 'piterux-11',
-					category: 'piterux',
-					eventLabel: 'PITERUX #11',
-					title: 'Интерфейсная анимация и микро-взаимодействия',
-					dateLabel: '12 Сентября 2025',
-					viewers: 310,
-				},
-				{
-					id: 'piterjs-50',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #50',
-					title: 'Юбилейный митап: 10 лет сообществу PiterJS!',
-					dateLabel: '15 Августа 2025',
-					viewers: 820,
-				},
-				{
-					id: 'piterjs-49',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #49',
-					title: 'Оптимизация Core Web Vitals в сверхнагруженных сервисах',
-					dateLabel: '28 Июня 2025',
-					viewers: 390,
-				},
-				{
-					id: 'piterux-10',
-					category: 'piterux',
-					eventLabel: 'PITERUX #10',
-					title: 'Доступность (a11y) в сложных веб-приложениях',
-					dateLabel: '14 Мая 2025',
-					viewers: 270,
-				},
-				{
-					id: 'piterjs-48',
-					category: 'piterjs',
-					eventLabel: 'PITERJS #48',
-					title: 'State Management в 2025: Signals vs Stores vs Atoms',
-					dateLabel: '18 Апреля 2025',
-					viewers: 480,
-				},
-			]
-		}
-
-		@ $mol_mem
-		archive_limit( next?: number ) {
-			return next ?? 6
-		}
-
-		archive_more_click() {
-			this.archive_limit( this.archive_limit() + 6 )
-		}
-
-		@ $mol_mem
-		category_filter( next?: string ) {
-			return next ?? 'all'
-		}
-
-		filter_all_click() {
-			this.category_filter( 'all' )
-			this.archive_limit( 6 )
-		}
-
-		filter_piterjs_click() {
-			this.category_filter( 'piterjs' )
-			this.archive_limit( 6 )
-		}
-
-		filter_piterux_click() {
-			this.category_filter( 'piterux' )
-			this.archive_limit( 6 )
-		}
-
-		filter_conf_click() {
-			this.category_filter( 'conf' )
-			this.archive_limit( 6 )
+			return this.speeches().map( speech => this.Talk( speech.id() ) )
 		}
 
 		@ $mol_mem_key
-		items_for_category( cat: string ) {
-			const meetups = this.meetups()
-			if( meetups && meetups.length > 0 ) {
-				if( cat === 'all' ) return meetups
-				if( cat === 'piterjs' ) return meetups.filter( m => !m.title().includes('UX') && !m.title().includes('Conf') )
-				if( cat === 'piterux' ) return meetups.filter( m => m.title().includes('UX') )
-				if( cat === 'conf' ) return meetups.filter( m => m.title().includes('Conf') )
-				return []
-			}
-			const data = this.archive_preset_data()
-			if( cat === 'all' ) return data
-			return data.filter( item => item.category === cat )
+		speech( id: $mol_int62_string ) {
+			return this.speeches().find( speech => speech.id() === id ) ?? null
 		}
 
-		count_all() {
-			return this.items_for_category( 'all' ).length
+		talk_time( id: $mol_int62_string ) {
+			return this.speech( id )?.start()?.toString( 'hh:mm' ) ?? ''
 		}
 
-		count_piterjs() {
-			return this.items_for_category( 'piterjs' ).length
+		talk_title( id: $mol_int62_string ) {
+			return this.speech( id )?.title() ?? ''
 		}
 
-		count_piterux() {
-			return this.items_for_category( 'piterux' ).length
+		talk_lead( id: $mol_int62_string ) {
+			return this.speech( id )?.description() ?? ''
 		}
 
-		count_conf() {
-			return this.items_for_category( 'conf' ).length
+		talk_person_name( id: $mol_int62_string ) {
+			return this.speech( id )?.speaker().title() ?? ''
 		}
 
-		@ $mol_mem
-		filter_buttons() {
-			const buttons: any[] = []
-			if( this.count_all() > 0 ) buttons.push( this.Filter_all() )
-			if( this.count_piterjs() > 0 ) buttons.push( this.Filter_piterjs() )
-			if( this.count_piterux() > 0 ) buttons.push( this.Filter_piterux() )
-			if( this.count_conf() > 0 ) buttons.push( this.Filter_conf() )
-			return buttons
+		talk_person_role( id: $mol_int62_string ) {
+			return this.speech( id )?.speaker().description() ?? ''
 		}
 
-		filter_all_active() {
-			return this.category_filter() === 'all'
+		talk_photo_uri( id: $mol_int62_string ) {
+			return this.speech( id )?.speaker().photo_uri() ?? ''
 		}
 
-		filter_piterjs_active() {
-			return this.category_filter() === 'piterjs'
-		}
-
-		filter_piterux_active() {
-			return this.category_filter() === 'piterux'
-		}
-
-		filter_conf_active() {
-			return this.category_filter() === 'conf'
-		}
-
-		@ $mol_mem
-		filtered_archive() {
-			const cat = this.category_filter()
-			return this.items_for_category( cat )
-		}
-
-		@ $mol_mem
-		all_filtered_items() {
-			const cat = this.category_filter()
-			const items = this.items_for_category( cat )
-			const meetups = this.meetups()
-			if( meetups && meetups.length > 0 ) {
-				return ( items as $piterjs_meetup[] ).map( m => m.id() )
-			}
-			return ( items as any[] ).map( item => item.id )
-		}
-
-		@ $mol_mem
-		visible_archive_ids() {
-			const items = this.all_filtered_items()
-			return items.slice( 0, this.archive_limit() )
-		}
-
-		@ $mol_mem
-		archive_has_more() {
-			return this.all_filtered_items().length > this.archive_limit()
-		}
-
-		@ $mol_mem
-		archive_cards() {
-			return this.visible_archive_ids().map( id => this.Archive_card( id ) )
-		}
-
-		@ $mol_mem
-		archive_more_slot() {
-			return this.archive_has_more() ? [ this.Archive_more_btn() ] : []
-		}
-
-		archive_item( id: string ) {
-			return this.archive_preset_data().find( it => it.id === id )
-		}
-
-		card_event_tag( id: string ) {
-			const m = this.meetups()?.find( item => item.id() === id )
-			if( m ) return m.title() || 'PITERJS'
-			return this.archive_item( id )?.eventLabel ?? ''
-		}
-
-		card_title( id: string ) {
-			const m = this.meetups()?.find( item => item.id() === id )
-			if( m ) return m.speeches()?.[0]?.title() || m.description() || m.title() || 'Встреча сообщества'
-			return this.archive_item( id )?.title ?? ''
-		}
-
-		card_date( id: string ) {
-			const m = this.meetups()?.find( item => item.id() === id )
-			if( m?.start() ) return this.format_ru_date( m.start(), false )
-			return this.archive_item( id )?.dateLabel ?? ''
-		}
-
-		card_viewers( id: string ) {
-			const m = this.meetups()?.find( item => item.id() === id )
-			if( m ) {
-				const count = m.visitors_list()?.length || 0
-				return `👁 ${count} участников`
-			}
-			const count = this.archive_item( id )?.viewers ?? 0
-			return `👁 ${count} зрителей`
-		}
-
-		// Modal CFP
-		@ $mol_mem
-		modal_open( next?: boolean ) {
-			return next ?? false
-		}
-
-		cfp_open() {
-			this.modal_open( true )
-		}
-
-		cfp_close() {
-			this.modal_open( false )
-		}
-
-		// Toast Notification System
-		@ $mol_mem
-		toast_message( next?: string ) {
-			if( next ) {
-				new $mol_after_timeout( 4000, () => {
-					if( this.toast_message() === next ) {
-						this.toast_message( '' )
-					}
-				} )
-			}
-			return next ?? ''
-		}
-
-		rsvp_click() {
-			const title = this.meetup_title()
-			this.toast_message( `✅ Вы успешно зарегистрированы на ${title}! До встречи на Петроградской.` )
-		}
-
-		cfp_submit() {
-			if( !this.cfp_name() || !this.cfp_title() || !this.cfp_contact() ) {
-				this.toast_message( '⚠️ Пожалуйста, заполните обязательные поля формы' )
-				return
-			}
-			this.modal_open( false )
-			this.toast_message( '⚡ Заявка на доклад принята! Программный комитет PiterJS свяжется с вами.' )
-			this.cfp_email( '' )
-			this.cfp_contact( '' )
-			this.cfp_name( '' )
-			this.cfp_company( '' )
-			this.cfp_title( '' )
-			this.cfp_desc( '' )
-		}
-
-		@ $mol_mem
-		burger_open( next?: boolean ) {
-			return next ?? false
-		}
-
-		burger_toggle() {
-			this.burger_open( !this.burger_open() )
-		}
-
-		nav_mobile_close() {
-			this.burger_open( false )
-		}
-
-		@ $mol_mem
-		sub() {
+		@ $mol_mem_key
+		talk_speaker( id: $mol_int62_string ) {
+			const photo = this.speech( id )?.speaker().photo_blob()
 			return [
-				this.Header(),
-				this.Nav_mobile(),
-				this.Main(),
-				... this.modal_open() ? [ this.Cfp_modal() ] : [],
-				... this.toast_message() ? [ this.Toast() ] : [],
+				... photo?.size ? [ this.Talk_photo( id ) ] : [],
+				this.Talk_person( id ),
 			]
+		}
+
+		// ===== Площадка =====
+
+		venue_title() {
+			return this.meetup()?.place().title() ?? ''
+		}
+
+		@ $mol_mem
+		venue_lines() {
+			const place = this.meetup()?.place()
+			if( !place ) return []
+			return ( [ 'address', 'route', 'notes' ] as const )
+				.filter( key => place[ key ]() )
+				.map( key => this.Venue_line( key ) )
+		}
+
+		venue_line( id: 'address' | 'route' | 'notes' ) {
+			return `${ this.venue_icons()[ id ] } ${ this.meetup()?.place()[ id ]() ?? '' }`
+		}
+
+		// ===== Архив =====
+
+		@ $mol_mem
+		archive_list() {
+			const current = this.meetup()?.id()
+			return this.meetups().filter( meetup => meetup.id() !== current )
+		}
+
+		category_of( meetup: $piterjs_meetup ) {
+			const title = meetup.title()
+			if( /ux/i.test( title ) ) return 'piterux'
+			if( /conf/i.test( title ) ) return 'conf'
+			return 'piterjs'
+		}
+
+		@ $mol_mem_key
+		category_list( category: string ) {
+			const list = this.archive_list()
+			return category === 'all' ? list : list.filter( meetup => this.category_of( meetup ) === category )
+		}
+
+		@ $mol_mem
+		category( next?: string ) {
+			return next ?? 'all'
+		}
+
+		@ $mol_mem
+		limit( next?: number ) {
+			return next ?? 6
+		}
+
+		@ $mol_mem
+		filters() {
+			return Object.keys( this.filter_titles() )
+				.filter( category => this.category_list( category ).length > 0 )
+				.map( category => this.Filter( category ) )
+		}
+
+		filter_title( id: string ) {
+			return this.label( this.filter_titles(), id ) || id
+		}
+
+		filter_current( id: string ) {
+			return this.category() === id
+		}
+
+		filter_click( id: string ) {
+			this.category( id )
+			this.limit( 6 )
+		}
+
+		@ $mol_mem
+		cards() {
+			return this.category_list( this.category() )
+				.slice( 0, this.limit() )
+				.map( meetup => this.Card( meetup.id() ) )
+		}
+
+		@ $mol_mem
+		archive_foot() {
+			return this.category_list( this.category() ).length > this.limit() ? [ this.More() ] : []
+		}
+
+		more_click() {
+			this.limit( this.limit() + 6 )
+		}
+
+		@ $mol_mem_key
+		card_meetup( id: $mol_int62_string ) {
+			return this.meetups().find( meetup => meetup.id() === id ) ?? null
+		}
+
+		card_tag( id: $mol_int62_string ) {
+			return this.card_meetup( id )?.title().toUpperCase() ?? ''
+		}
+
+		card_title( id: $mol_int62_string ) {
+			const meetup = this.card_meetup( id )
+			return meetup?.description() || meetup?.speeches()[0]?.title() || ''
+		}
+
+		card_date( id: $mol_int62_string ) {
+			return this.card_meetup( id )?.start()?.toString( 'D Month YYYY', 'ru' ) ?? ''
+		}
+
+		// ===== Сообщество и подвал =====
+
+		@ $mol_mem
+		community_cards() {
+			return Object.keys( this.community_titles() ).map( id => this.Community_card( id ) )
+		}
+
+		community_badge( id: string ) {
+			return this.label( this.community_badges(), id )
+		}
+
+		community_title( id: string ) {
+			return this.label( this.community_titles(), id )
+		}
+
+		community_text( id: string ) {
+			return this.label( this.community_texts(), id )
+		}
+
+		community_action( id: string ) {
+			return this.label( this.community_actions(), id )
+		}
+
+		@ $mol_mem
+		socials() {
+			return Object.keys( this.social_uris() ).map( id => this.Social( id ) )
+		}
+
+		social_uri( id: string ) {
+			return this.label( this.social_uris(), id )
+		}
+
+		social_hint( id: string ) {
+			return this.label( this.social_hints(), id )
+		}
+
+		social_icon( id: string ) {
+			return `/piterjs/landing/assets/${ id }.webp`
 		}
 
 	}
