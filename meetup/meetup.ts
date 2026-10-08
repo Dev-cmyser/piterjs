@@ -63,12 +63,14 @@ namespace $ {
 			const land = this.joined_node()?.land
 			if( !land ) return null
 
+			const sync_wrap = $mol_wire_sync( $mol_crypto_sacred_shared )
+			
 			if( priv ) {
 
 				const auth = this.land.peer()
 				const pub = peer === auth.id ? auth.key_public_serial : land.unit( peer, peer )?.data as string | undefined
 				return pub
-					? $mol_wire_sync( $mol_crypto_sacred_shared )(
+					? sync_wrap(
 						$mol_crypto_key_private.from( priv ),
 						$mol_crypto_key_public.from( pub ),
 					)
@@ -78,7 +80,7 @@ namespace $ {
 
 				const priv = land.peer().key_private_serial
 				const pub = $piterjs_domain.secure_public()
-				return $mol_wire_sync( $mol_crypto_sacred_shared )(
+				return sync_wrap(
 						$mol_crypto_key_private.from( priv ),
 						$mol_crypto_key_public.from( pub ),
 					)
