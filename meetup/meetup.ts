@@ -67,13 +67,21 @@ namespace $ {
 
 				const auth = this.land.peer()
 				const pub = peer === auth.id ? auth.key_public_serial : land.unit( peer, peer )?.data as string | undefined
-				return pub ? $mol_wire_sync( $mol_crypto_secret ).derive( priv, pub ) : null
+				return pub
+					? $mol_wire_sync( $mol_crypto_sacred_shared )(
+						$mol_crypto_key_private.from( priv ),
+						$mol_crypto_key_public.from( pub ),
+					)
+					: null
 
 			} else {
 
 				const priv = land.peer().key_private_serial
 				const pub = $piterjs_domain.secure_public()
-				return $mol_wire_sync( $mol_crypto_secret ).derive( priv, pub )
+				return $mol_wire_sync( $mol_crypto_sacred_shared )(
+						$mol_crypto_key_private.from( priv ),
+						$mol_crypto_key_public.from( pub ),
+					)
 
 			}
 
