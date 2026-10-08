@@ -112,7 +112,7 @@ namespace $ {
 			
 			$mol_wire_solid()
 			
-			const salt = $mol_crypto_hash( $mol_charset_encode( this.id() ) ).slice( 0, 16 )
+			const salt = $mol_crypto2_hash( $mol_charset_encode( this.id() ) ).slice( 0, 16 )
 
 			if( next ) {
 				const secret = $mol_wire_sync( this.peer_secret( id )! )
