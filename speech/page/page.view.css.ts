@@ -25,6 +25,7 @@ namespace $.$$ {
 		},
 
 		Reviews: {
+			display: 'contents',
 			padding: $mol_gap.block,
 			background: {
 				color: $mol_theme.card,
