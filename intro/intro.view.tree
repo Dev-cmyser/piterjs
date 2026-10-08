@@ -5,7 +5,7 @@ $piterjs_intro $mol_view
 	pages *$piterjs_intro_page
 		main <= Main $piterjs_intro_main meetup <= meetup
 		about <= About $piterjs_intro_page
-			title \Кто мы??
+			title \Кто мы
 			text \
 				\Митапы в Питере
 				\JS и всё, что рядом
@@ -14,16 +14,16 @@ $piterjs_intro $mol_view
 			title \Другие проекты
 			text \
 				\**PiterUX** - митапы о дизайне
-				\**PiterHUG** - прогулки, общение, софты
+				\**PiterHUG** - пикники, общение, софты
 		comunity <= Community $piterjs_intro_page
 			title \Сообщество PiterJS
 			text \
 				\! YouTube
-				\  ! 2.5K+
+				\  ! 2.6K+
 				\! VKontakte
-				\  ! 2.1K+
-				\! Telegram
 				\  ! 1.9K+
+				\! Telegram
+				\  ! 2.1K+
 				\! Offline
 				\  ! ~70
 		roles_org <= Roles_org $piterjs_intro_page
@@ -49,17 +49,17 @@ $piterjs_intro $mol_view
 		team <= Team $piterjs_intro_page
 			title \Команда
 			text \
-				\! ""https://habrastorage.org/webt/pd/ii/9l/pdii9lgzgihcg9vb3etx_hug4rg.jpeg""
-				\  ! ""https://habrastorage.org/webt/kf/qg/9l/kfqg9lp0ez5eey44-rlszbwozma.png""
-				\    ! ""https://habrastorage.org/webt/c5/tf/-i/c5tf-il8mfpbxxegoi_i5h6egxu.png""
-				\      ! ""https://habrastorage.org/webt/-8/6s/kw/-86skwqsvqzvodiauw3fv_vt1h8.png""
-				\        ! ""https://habrastorage.org/webt/dw/3a/ui/dw3auiirk0vffjg3xnn4em775dq.png""
+				\! ""https://habrastorage.org/webt/8e/dq/rh/8edqrhvfwy92wyra4yulzc3uvyi.png""
+				\  ! ""https://habrastorage.org/webt/vv/rj/2f/vvrj2ffi-kztfpzdsbiiv-goqso.png""
+				\    ! ""https://habrastorage.org/webt/44/26/7f/44267f28895f1dd1fd609d851dd82ca3.png""
+				\! ""https://habrastorage.org/webt/7f/25/76/7f25769b6b84302ce88f14cf3e032ec2.png""
+				\  ! ""https://habrastorage.org/webt/c5/tf/-i/c5tf-il8mfpbxxegoi_i5h6egxu.png""
+				\    ! ""https://habrastorage.org/webt/dw/3a/ui/dw3auiirk0vffjg3xnn4em775dq.png""
+				- \! ""https://habrastorage.org/webt/pd/ii/9l/pdii9lgzgihcg9vb3etx_hug4rg.jpeg""
+				- \! ""https://habrastorage.org/webt/kf/qg/9l/kfqg9lp0ez5eey44-rlszbwozma.png""
+				- \! ""https://habrastorage.org/webt/-8/6s/kw/-86skwqsvqzvodiauw3fv_vt1h8.png""
 				- \! ""https://habrastorage.org/webt/mb/oz/2-/mboz2-qxenahgayijecyblbo6ka.jpeg""
-				\! ""https://habrastorage.org/webt/44/26/7f/44267f28895f1dd1fd609d851dd82ca3.png""
-				\  ! ""https://habrastorage.org/webt/8e/dq/rh/8edqrhvfwy92wyra4yulzc3uvyi.png""
-				\    ! ""https://habrastorage.org/webt/vv/rj/2f/vvrj2ffi-kztfpzdsbiiv-goqso.png""
-				\      ! ""https://habrastorage.org/webt/cd/po/2w/cdpo2wbzt2bd0lism1hvcui3bgs.png""
-				\        ! ""https://habrastorage.org/webt/7f/25/76/7f25769b6b84302ce88f14cf3e032ec2.png""
+				- \! ""https://habrastorage.org/webt/cd/po/2w/cdpo2wbzt2bd0lism1hvcui3bgs.png""
 		speakers <= Speakers $piterjs_intro_page
 			title \Стань докладчиком
 			text \
@@ -81,25 +81,23 @@ $piterjs_intro $mol_view
 				\Выступай сам
 				\Вступай в наши ряды
 				\Просто приходи
-		schedule <= Schedule $piterjs_schedule
-			meetup <= meetup
-			title \Сегодня
-		- profit <= Proft $piterjs_intro_page
+		profit <= Proft $piterjs_intro_page
 			title \Бонусы
 			text \
 				\За лучшие вопросы - призы
 				\Мы ведём трансляцию
 				\И записываем видео
 				\Улыбайтесь фотографу
-		- partners <= Partners $piterjs_intro_page
+				\И сами снимайте друг друга
+		partners <= Partners $piterjs_intro_page
 			title \Партнёры
 			text \
-				- \! ""https://i.imgur.com/ntlwbqL.png""
-				- \""https://i.imgur.com/tFCueVj.png""
+				\""https://static.tildacdn.com/tild6561-3739-4465-a432-333466316465/svg_1746604234103.svg""
 		place <= Place $piterjs_intro_page
 			text <= place_notes \
 			title <= place_title \Мы в {place}
 			text \
+				- \""/piterjs/logo-sponsors/tbank-logo.svg""
 				\""https://habrastorage.org/webt/nh/np/oy/nhnpoyyb6ayimlhpxcyxptxwtza.jpeg""
 		follow <= Follow $piterjs_intro_page
 			title \Следите за новостями
@@ -112,6 +110,9 @@ $piterjs_intro $mol_view
 		afterparty <= Afterparty $piterjs_intro_page
 			title \Afterparty!
 			text <= afterparty \
+		schedule <= Schedule $piterjs_schedule
+			meetup <= meetup
+			title \Сегодня
 	sub /
 		<= Screen $piterjs_screen
 			place <= place $piterjs_place
