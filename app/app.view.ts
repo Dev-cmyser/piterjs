@@ -65,6 +65,12 @@ namespace $.$$ {
 		speaker_id( next? : string ) { return this.$.$mol_state_arg.value( 'speaker' , next ) }
 		// speaker( id : string ) { return $piterjs_speaker.item( id ) }
 
+		Intro() {
+			const intro = super.Intro()
+			intro.bring()
+			return intro
+		}
+
 		@ $mol_mem
 		pages() {
 			if( this.intro() != null ) return [ this.Intro() ]
