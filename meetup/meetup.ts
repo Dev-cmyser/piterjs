@@ -275,6 +275,11 @@ namespace $ {
 			
 		}
 
+		@ $mol_mem
+		place_image( next?: string ) {
+			return this.sub( 'place_image', $hyoo_crowd_reg ).str( next )
+		}
+
 	}
 
 }

@@ -10,6 +10,7 @@ $piterjs_meetup_page $mol_page
 		editable => editable
 		review? => review?
 		reviews => reviews
+		place_image? => place_image? 
 	address \
 	Title $mol_string_button
 		value? <=> title?
@@ -121,6 +122,18 @@ $piterjs_meetup_page $mol_page
 						value? <=> review?
 					<= Review_hint $mol_view sub / \+ По каждому спикеру далее
 			<= Reviews $mol_text text <= reviews
+			<= Place_photo_choice $mol_select
+				option_label_default \Фото площадки
+				options /string
+					\youMoney ""https://habrastorage.org/webt/nh/np/oy/nhnpoyyb6ayimlhpxcyxptxwtza.jpeg""
+					\""/piterjs/logo-sponsors/tbank-logo.svg""
+					\""/piterjs/logo-sponsors/sprinthost.ru-2.png""
+					\""/piterjs/logo-sponsors/Nexign_Logo.png""
+					\""/piterjs/logo-sponsors/kvant-logo.png""
+				value? <=> place_image? 
+			<= Place_photo_custom $mol_string
+				hint \Ссылка на фото
+				value? <=> place_image? 
 	Speech!index $piterjs_speech_snippet
 		speech <= speech!index $piterjs_speech
 	foot /

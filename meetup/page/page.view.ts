@@ -44,6 +44,7 @@ namespace $.$$ {
 				this.Speeches() ,
 				... this.editing() ? [ this.Speech_add() ] : [] ,
 				... this.editing() ? [ this.Hidden_fields() ] : [] ,
+				... ( this.editing() ) ? [ this.Place_photo_choice(), this.Place_photo_custom() ] : [] ,
 			]
 		}
 
@@ -138,6 +139,14 @@ namespace $.$$ {
 			if( next === true ) this.meetup().joined_name( peer, this.name_real() )
 			if( next === false ) this.meetup().joined_name( peer, '' )
 			return Boolean( this.meetup().joined_name( peer ) )
+		}
+
+		place_image(url?: string){
+			if (url) {
+				url = "" + url + ""
+				return (this.meetup().place_image(url));
+			}
+			return (this.meetup().place_image(url));
 		}
 
 	}
