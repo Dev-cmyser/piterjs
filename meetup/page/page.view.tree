@@ -11,6 +11,7 @@ $piterjs_meetup_page $mol_page
 		review? => review?
 		reviews => reviews
 		place_image? => place_image? 
+		partners_image? => partners_image? 
 	address \
 	Title $mol_string_button
 		value? <=> title?
@@ -134,6 +135,15 @@ $piterjs_meetup_page $mol_page
 			<= Place_photo_custom $mol_string
 				hint \Ссылка на фото
 				value? <=> place_image? 
+			<= Partners_photo_choice $mol_select
+				option_label_default \Фото партнера\спонсора
+				options /string
+					\Failover bar ""https://static.tildacdn.com/tild6561-3739-4465-a432-333466316465/svg_1746604234103.svg""
+					\""/piterjs/logo-sponsors/Nexign_Logo.png""
+				value? <=> partners_image? 
+			<= Partners_photo_custom $mol_string
+				hint \Ссылка на фото партнера\спонсора
+				value? <=> partners_image? 
 	Speech!index $piterjs_speech_snippet
 		speech <= speech!index $piterjs_speech
 	foot /

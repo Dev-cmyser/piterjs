@@ -91,15 +91,11 @@ $piterjs_intro $mol_view
 				\И сами снимайте друг друга
 		partners <= Partners $piterjs_intro_page
 			title \Партнёры
-			text \
-				\""https://static.tildacdn.com/tild6561-3739-4465-a432-333466316465/svg_1746604234103.svg""
+			text <= partners_image \
 		place <= Place $piterjs_intro_page
 			text <= place_notes \
 			title <= place_title \Мы в {place}
 			text <= place_image \
-			- text \
-				- \""/piterjs/logo-sponsors/tbank-logo.svg""
-				\""https://habrastorage.org/webt/nh/np/oy/nhnpoyyb6ayimlhpxcyxptxwtza.jpeg""
 		follow <= Follow $piterjs_intro_page
 			title \Следите за новостями
 			text \

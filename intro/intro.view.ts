@@ -19,11 +19,14 @@ namespace $.$$ {
 			return super.place_title().replace( '{place}' , this.place().title() )
 		}
 		
-		// intro.view.ts
 		@ $mol_mem
 		place_image() {
-			console.log( 'intro', this.meetup().id(), JSON.stringify( this.meetup().place_image() ) )
 			return this.meetup().place_image()
+		}
+		
+		@ $mol_mem
+		partners_image() {
+			return this.meetup().partners_image()
 		}
 
 		place_notes() {

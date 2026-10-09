@@ -279,6 +279,11 @@ namespace $ {
 		place_image( next?: string ) {
 			return this.sub( 'place_image', $hyoo_crowd_reg ).str( next )
 		}
+		
+		@ $mol_mem
+		partners_image( next?: string ) {
+			return this.sub( 'partners_image', $hyoo_crowd_reg ).str( next )
+		}
 
 	}
 

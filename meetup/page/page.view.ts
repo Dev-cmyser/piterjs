@@ -45,6 +45,7 @@ namespace $.$$ {
 				... this.editing() ? [ this.Speech_add() ] : [] ,
 				... this.editing() ? [ this.Hidden_fields() ] : [] ,
 				... ( this.editing() ) ? [ this.Place_photo_choice(), this.Place_photo_custom() ] : [] ,
+				... ( this.editing() ) ? [ this.Partners_photo_choice(), this.Partners_photo_custom() ] : [] ,
 			]
 		}
 
@@ -141,12 +142,22 @@ namespace $.$$ {
 			return Boolean( this.meetup().joined_name( peer ) )
 		}
 
+		format(url: string) {
+			return ("" + url + "")
+		}
+		
 		place_image(url?: string){
 			if (url) {
-				url = "" + url + ""
-				return (this.meetup().place_image(url));
+				return (this.meetup().place_image(this.format(url)));
 			}
 			return (this.meetup().place_image(url));
+		}
+		
+		partners_image(url?: string){
+			if (url) {
+				return (this.meetup().partners_image(this.format(url)));
+			}
+			return (this.meetup().partners_image(url));
 		}
 
 	}
