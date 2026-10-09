@@ -3,7 +3,7 @@ namespace $.$$ {
 	export class $piterjs_intro extends $.$piterjs_intro {
 
 		page_ids() {
-			return Object.keys( this.pages() )
+			return Object.keys( this.pages() ).filter( id => id !== 'partners' || Boolean( this.partners_image() ) )
 		}
 
 		Page() {
